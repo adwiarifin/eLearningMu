@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">eLearningMu</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_home_latest">Latest</string>
+    <string name="title_home_popular">Popular</string>
+    <string name="title_home_featured">Featured</string>
 </resources>

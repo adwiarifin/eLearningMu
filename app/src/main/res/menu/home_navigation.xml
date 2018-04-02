@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home_latest"
+        android:icon="@drawable/ic_assignment_black_24dp"
+        android:title="@string/title_home_latest" />
+
+    <item
+        android:id="@+id/navigation_home_popular"
+        android:icon="@drawable/ic_trending_up_black_24dp"
+        android:title="@string/title_home_popular" />
+
+    <item
+        android:id="@+id/navigation_home_featured"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="@string/title_home_featured" />
+
+</menu>
