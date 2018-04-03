@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,8 @@ import com.kesatriakeyboard.elearningmu.model.CourseWithHeaderStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
 
@@ -52,7 +55,15 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         final Course course = listCourse.get(position).course;
 
         holder.txtName.setText(course.name);
-        holder.txtPrice.setText(course.priceHtml.toString());
+        holder.txtInstructor.setText(course.instructor.name);
+        holder.ratingBar.setRating(Float.valueOf(course.averageRating));
+        if (course.priceHtml instanceof String) {
+            String price = course.priceHtml.toString();
+            if (hasHTMLTags(price)) {
+                price = android.text.Html.fromHtml(price).toString();
+            }
+            holder.txtPrice.setText(price);
+        }
 
         RequestOptions options = new RequestOptions()
                 .fitCenter();
@@ -75,10 +86,18 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         return listCourse == null ? 0 : listCourse.size();
     }
 
+    public boolean hasHTMLTags(String text){
+        String HTML_PATTERN = "<[a-z][\\s\\S]*>";
+        Pattern pattern = Pattern.compile(HTML_PATTERN);
+        Matcher matcher = pattern.matcher(text);
+        return matcher.matches();
+    }
+
     public class CourseViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgPhoto;
-        TextView txtName, txtPrice;
+        TextView txtName, txtInstructor, txtPrice;
+        RatingBar ratingBar;
         CardView cardCourse;
 
         public CourseViewHolder(View itemView) {
@@ -86,7 +105,9 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             cardCourse = itemView.findViewById(R.id.card_course);
             imgPhoto = itemView.findViewById(R.id.img_item_photo);
             txtName = itemView.findViewById(R.id.tv_item_name);
+            txtInstructor = itemView.findViewById(R.id.tv_item_instructor);
             txtPrice = itemView.findViewById(R.id.tv_item_price);
+            ratingBar = itemView.findViewById(R.id.tv_item_rating);
         }
     }
 }
