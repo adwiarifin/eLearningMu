@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.kesatriakeyboard.elearningmu.R;
 import com.kesatriakeyboard.elearningmu.util.Config;
@@ -20,7 +19,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation_home);
         navigation.setOnNavigationItemSelectedListener(this);
 
         Bundle args = new Bundle();
@@ -28,7 +27,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         Fragment firstFragment = CourseFragment.newInstance();
         firstFragment.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, firstFragment);
+        transaction.replace(R.id.frame_home, firstFragment);
         transaction.commit();
     }
 
@@ -56,7 +55,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, selectedFragment);
+        transaction.replace(R.id.frame_home, selectedFragment);
         transaction.commit();
         return true;
     }

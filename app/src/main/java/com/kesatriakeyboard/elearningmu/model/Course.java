@@ -26,11 +26,11 @@ public class Course implements Serializable {
 
     @SerializedName("price")
     @Expose
-    public Boolean price;
+    public Object price = null; // Integer or Boolean
 
     @SerializedName("price_html")
     @Expose
-    public String priceHtml = null;
+    public Object priceHtml = null; // String or Array
 
     @SerializedName("total_students")
     @Expose
@@ -42,7 +42,7 @@ public class Course implements Serializable {
 
     @SerializedName("start_date")
     @Expose
-    public Integer startDate;
+    public Object startDate = null; // Integer or Boolean
 
     @SerializedName("average_rating")
     @Expose

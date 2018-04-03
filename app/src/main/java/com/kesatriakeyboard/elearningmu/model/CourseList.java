@@ -8,15 +8,7 @@ import java.util.List;
 
 public class CourseList implements Serializable {
 
-    @SerializedName("data")
+    @SerializedName("list")
     @Expose
-    public Course course;
-
-    @SerializedName("headers")
-    @Expose
-    public List<Object> headers = null;
-
-    @SerializedName("status")
-    @Expose
-    public Integer status;
+    public List<CourseWithHeaderStatus> listCourseWithHeaderStatus;
 }
