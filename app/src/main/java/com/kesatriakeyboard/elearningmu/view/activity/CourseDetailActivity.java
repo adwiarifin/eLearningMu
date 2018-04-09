@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import com.kesatriakeyboard.elearningmu.model.CourseList;
 import com.kesatriakeyboard.elearningmu.model.response.CourseDetailResponse;
 import com.kesatriakeyboard.elearningmu.model.response.CourseResponse;
 import com.kesatriakeyboard.elearningmu.util.Config;
+import com.kesatriakeyboard.elearningmu.util.HTMLString;
 import com.kesatriakeyboard.elearningmu.util.SingletonRequestQueue;
 
 public class CourseDetailActivity extends AppCompatActivity {
@@ -115,7 +117,8 @@ public class CourseDetailActivity extends AppCompatActivity {
     public void setCourse(CourseDetail detail) {
         toolbarLayout.setTitle(detail.course.name);
 
-        description.setText(detail.description);
+        String strip = HTMLString.stripHTML(detail.description);
+        description.setText(strip);
 
         RequestOptions options = new RequestOptions()
                 .fitCenter();

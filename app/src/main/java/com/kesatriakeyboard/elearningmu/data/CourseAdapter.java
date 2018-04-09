@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.kesatriakeyboard.elearningmu.R;
 import com.kesatriakeyboard.elearningmu.model.response.CourseResponse;
+import com.kesatriakeyboard.elearningmu.util.HTMLString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +62,8 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         holder.ratingBar.setRating(Float.valueOf(course.averageRating));
         if (course.priceHtml instanceof String) {
             String price = course.priceHtml.toString();
-            if (hasHTMLTags(price)) {
-                price = android.text.Html.fromHtml(price).toString();
+            if (HTMLString.hasHTMLTags(price)) {
+                price = HTMLString.stripHTML(price);
             }
             holder.txtPrice.setText(price);
         }
@@ -79,13 +80,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     @Override
     public int getItemCount() {
         return listCourse == null ? 0 : listCourse.size();
-    }
-
-    public boolean hasHTMLTags(String text){
-        String HTML_PATTERN = "<[a-z][\\s\\S]*>";
-        Pattern pattern = Pattern.compile(HTML_PATTERN);
-        Matcher matcher = pattern.matcher(text);
-        return matcher.matches();
     }
 
     public class CourseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
