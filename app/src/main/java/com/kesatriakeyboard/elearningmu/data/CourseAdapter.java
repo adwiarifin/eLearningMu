@@ -1,7 +1,6 @@
 package com.kesatriakeyboard.elearningmu.data;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -11,15 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.RequestOptions;
 import com.kesatriakeyboard.elearningmu.R;
-import com.kesatriakeyboard.elearningmu.model.Course;
-import com.kesatriakeyboard.elearningmu.model.CourseWithHeaderStatus;
+import com.kesatriakeyboard.elearningmu.model.response.CourseResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +23,22 @@ import java.util.regex.Pattern;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
 
-    private List<CourseWithHeaderStatus> listCourse;
+    private List<CourseResponse> listCourse;
     private Context mContext;
 
-    public CourseAdapter(Context context) {
+    final private CourseAdapterOnClickHandler mClickHandler;
+
+    public interface CourseAdapterOnClickHandler {
+        void onClick(int courseId);
+    }
+
+    public CourseAdapter(@NonNull Context context, CourseAdapterOnClickHandler clickHandler) {
         this.mContext = context;
+        this.mClickHandler = clickHandler;
         this.listCourse = new ArrayList<>();
     }
 
-    public void setData(List<CourseWithHeaderStatus> listCourse) {
+    public void setData(List<CourseResponse> listCourse) {
         this.listCourse.clear();
         this.listCourse.addAll(listCourse);
         notifyDataSetChanged();
@@ -52,7 +54,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        final Course course = listCourse.get(position).course;
+        final com.kesatriakeyboard.elearningmu.model.Course course = listCourse.get(position).course;
 
         holder.txtName.setText(course.name);
         holder.txtInstructor.setText(course.instructor.name);
@@ -72,13 +74,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
                 .load(course.featuredImage)
                 .apply(options)
                 .into(holder.imgPhoto);
-
-        holder.cardCourse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, "Course id : " + course.id, Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     @Override
@@ -93,7 +88,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         return matcher.matches();
     }
 
-    public class CourseViewHolder extends RecyclerView.ViewHolder {
+    public class CourseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView imgPhoto;
         TextView txtName, txtInstructor, txtPrice;
@@ -108,6 +103,14 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             txtInstructor = itemView.findViewById(R.id.tv_item_instructor);
             txtPrice = itemView.findViewById(R.id.tv_item_price);
             ratingBar = itemView.findViewById(R.id.tv_item_rating);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            com.kesatriakeyboard.elearningmu.model.Course course = listCourse.get(adapterPosition).course;
+            mClickHandler.onClick(course.id);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.kesatriakeyboard.elearningmu.view.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,11 +27,11 @@ import com.kesatriakeyboard.elearningmu.R;
 import com.kesatriakeyboard.elearningmu.data.CourseAdapter;
 import com.kesatriakeyboard.elearningmu.model.CourseList;
 import com.kesatriakeyboard.elearningmu.util.SingletonRequestQueue;
+import com.kesatriakeyboard.elearningmu.view.activity.CourseDetailActivity;
 
-public class CourseFragment extends Fragment {
+public class CourseFragment extends Fragment implements CourseAdapter.CourseAdapterOnClickHandler {
 
     private ProgressDialog progressDialog;
-    private RecyclerView rvCourse;
     private CourseAdapter adapter;
 
     public static CourseFragment newInstance() {
@@ -61,15 +62,15 @@ public class CourseFragment extends Fragment {
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
-        adapter = new CourseAdapter(getActivity());
-        rvCourse = rootView.findViewById(R.id.rv_course);
+        adapter = new CourseAdapter(getActivity(), this);
+        RecyclerView rvCourse = rootView.findViewById(R.id.rv_course);
         rvCourse.setLayoutManager(llm);
         rvCourse.setAdapter(adapter);
 
         return rootView;
     }
 
-    public void getCourseRequest(String url) {
+    private void getCourseRequest(String url) {
         RequestQueue queue = SingletonRequestQueue.getInstance(getContext()).getRequestQueue();
         VolleyLog.DEBUG = true;
         progressDialog.show();
@@ -84,7 +85,7 @@ public class CourseFragment extends Fragment {
                 Gson gson = builder.create();
                 CourseList list = gson.fromJson(response, CourseList.class);
 
-                adapter.setData(list.listCourseWithHeaderStatus);
+                adapter.setData(list.listCourses);
                 //System.out.println(adapter.getItemCount());
                 progressDialog.dismiss();
             }
@@ -96,6 +97,7 @@ public class CourseFragment extends Fragment {
                 } else {
                     Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
                 }
+                progressDialog.dismiss();
             }
         });
 
@@ -103,5 +105,12 @@ public class CourseFragment extends Fragment {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         stringRequest.setRetryPolicy(policy);
         queue.add(stringRequest);
+    }
+
+    @Override
+    public void onClick(int courseId) {
+        Intent courseDetailIntent = new Intent(getActivity(), CourseDetailActivity.class);
+        courseDetailIntent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, courseId);
+        startActivity(courseDetailIntent);
     }
 }

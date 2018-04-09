@@ -22,4 +22,20 @@ public class Instructor implements Serializable {
     @SerializedName("sub")
     @Expose
     public String sub;
+
+    @SerializedName("average_rating")
+    @Expose
+    public String averageRating;
+
+    @SerializedName("student_count")
+    @Expose
+    public String studentCount;
+
+    @SerializedName("course_count")
+    @Expose
+    public Integer courseCount;
+
+    @SerializedName("bio")
+    @Expose
+    public Boolean bio;
 }

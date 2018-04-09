@@ -1,16 +1,15 @@
-package com.kesatriakeyboard.elearningmu.model;
+package com.kesatriakeyboard.elearningmu.model.response;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kesatriakeyboard.elearningmu.model.CourseDetail;
 
-import java.io.Serializable;
-import java.util.List;
-
-public class CourseWithHeaderStatus implements Serializable {
+public class CourseDetailResponse {
 
     @SerializedName("data")
     @Expose
-    public Course course;
+    public CourseDetail data;
 
     @SerializedName("headers")
     @Expose
