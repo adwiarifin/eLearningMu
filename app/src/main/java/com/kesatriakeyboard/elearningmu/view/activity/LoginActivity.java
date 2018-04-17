@@ -3,12 +3,12 @@ package com.kesatriakeyboard.elearningmu.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -24,7 +24,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kesatriakeyboard.elearningmu.R;
-import com.kesatriakeyboard.elearningmu.model.response.CourseDetailResponse;
+import com.kesatriakeyboard.elearningmu.model.response.SignInResponse;
 import com.kesatriakeyboard.elearningmu.model.response.TokenResponse;
 import com.kesatriakeyboard.elearningmu.util.Config;
 import com.kesatriakeyboard.elearningmu.util.PrefManager;
@@ -33,6 +33,7 @@ import com.kesatriakeyboard.elearningmu.util.SingletonRequestQueue;
 import java.util.HashMap;
 import java.util.Map;
 
+import customfonts.MyTextView;
 import okhttp3.HttpUrl;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -51,7 +52,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     String code;
     String error;
 
-    private Button btnLogin;
+    private MyTextView btnLogin;
     private Button btnUserId;
     private Button btnProfile;
 
@@ -60,8 +61,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        /*btnLogin = findViewById(R.id.btnLogin);
-        btnUserId = findViewById(R.id.btnUserId);
+        btnLogin = findViewById(R.id.signin1);
+        btnLogin.setOnClickListener(this);
+
+        /*btnUserId = findViewById(R.id.btnUserId);
         btnProfile = findViewById(R.id.btnProfile);
 
         btnLogin.setOnClickListener(this);
@@ -92,12 +95,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btnLogin:
+        switch (view.getId()) {
+            case R.id.signin1:
                 //oauthAuthorize();
                 loginApp();
                 break;
-            case R.id.btnUserId:
+            /*case R.id.btnUserId:
                 getUserIdRequest();
                 break;
             case R.id.btnProfile:
@@ -107,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     getUserProfileRequest();
                 }
-                break;
+                break;*/
         }
     }
 
@@ -123,6 +126,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 VolleyLog.wtf(response, "utf-8");
                 Log.e("OAUTH2", "response: " + response);
+
+                GsonBuilder builder = new GsonBuilder();
+                Gson gson = builder.create();
+                SignInResponse signinResponse = gson.fromJson(response, SignInResponse.class);
+
+                if (signinResponse.status) {
+                    saveAuth(signinResponse);
+                } else {
+                    Toast.makeText(LoginActivity.this, signinResponse.message, Toast.LENGTH_LONG).show();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -137,10 +150,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
+                TextView tvUsername = findViewById(R.id.email);
+                TextView tvPassword = findViewById(R.id.password);
+
+                String username = tvUsername.getText().toString();
+                String password = tvPassword.getText().toString();
+
                 String str = "{\n" +
-                        "  \"username\": \"adwiarifin\",\n" +
-                        "  \"password\": \"learningpassword123\",\n" +
-                        "  \"client_id\": \"364WagFhQc3gxOCzEvyotxg\",\n" +
+                        "  \"username\": \"" + username + "\",\n" +
+                        "  \"password\": \"" + password + "\",\n" +
+                        "  \"client_id\": \"" + CLIENT_ID + "\",\n" +
                         "  \"state\": \"@mA!*UkJp\",\n" +
                         "  \"device\": null,\n" +
                         "  \"platform\": null,\n" +
@@ -151,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("Content-Type", "application/json");
 
                 return params;
@@ -198,7 +217,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Gson gson = builder.create();
                 TokenResponse tokenResponse = gson.fromJson(response, TokenResponse.class);
 
-                saveAuth(tokenResponse);
+                //saveAuth(tokenResponse);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -213,7 +232,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("grant_type", "authorization_code");
                 params.put("code", code);
                 params.put("client_id", CLIENT_ID);
@@ -230,14 +249,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         queue.add(stringRequest);
     }
 
-    private void saveAuth(TokenResponse tokenResponse) {
-        Log.d("OAUTH2","access_token: " + tokenResponse.access_token);
+    private void saveAuth(SignInResponse signInResponse) {
+        Log.d("OAUTH2", "access_token: " + signInResponse.token.accessToken);
         PrefManager prefManager = PrefManager.getInstance(this);
         prefManager.setLoggedIn(true);
-        prefManager.setAccessToken(tokenResponse.access_token);
-        prefManager.setRefreshToken(tokenResponse.refresh_token);
+        prefManager.setAccessToken(signInResponse.token.accessToken);
 
-        getUserIdRequest();
+        Toast.makeText(this, "Welcome: " + signInResponse.user.name, Toast.LENGTH_LONG).show();
     }
 
     private void getUserIdRequest() {
@@ -277,7 +295,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public Map<String, String> getHeaders() throws AuthFailureError {
                 PrefManager pm = PrefManager.getInstance(ctx);
 
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", pm.getAccessToken());
 
                 Log.d("OAUTH2", params.toString());
@@ -321,7 +339,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public Map<String, String> getHeaders() throws AuthFailureError {
                 PrefManager pm = PrefManager.getInstance(ctx);
 
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", pm.getAccessToken());
 
                 Log.d("OAUTH2", params.toString());
