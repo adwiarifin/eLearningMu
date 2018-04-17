@@ -24,7 +24,15 @@
         <activity
             android:name=".view.activity.CourseDetailActivity"
             android:label="@string/title_activity_course_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".view.activity.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="com.kesatriakeyboard.elearningmu" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

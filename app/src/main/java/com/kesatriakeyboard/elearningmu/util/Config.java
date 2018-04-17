@@ -20,7 +20,7 @@ public class Config {
     public static final String INSTRUCTOR_URL = BASE_URL + "/wp-json/wplms/v1/instructors";
 
     // protected api
-    public static final String USER_ID_URL = BASE_URL + "/wp-json/wplms/v1/user";
+    public static final String USER_URL = BASE_URL + "/wp-json/wplms/v1/user";
     public static final String USER_PROFILE_URL = BASE_URL + "/wp-json/wplms/v1/user/profile";
     public static final String USER_COURSE_STATUS_URL = BASE_URL + "/wp-json/wplms/v1/user/course_status";
     public static final String USER_REVIEW_URL = BASE_URL + "/wp-json/wplms/v1/user/getreview";
