@@ -2,13 +2,20 @@ package com.kesatriakeyboard.elearningmu.view.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -25,92 +32,131 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kesatriakeyboard.elearningmu.R;
 import com.kesatriakeyboard.elearningmu.model.response.SignInResponse;
-import com.kesatriakeyboard.elearningmu.model.response.TokenResponse;
-import com.kesatriakeyboard.elearningmu.util.Config;
 import com.kesatriakeyboard.elearningmu.util.PrefManager;
 import com.kesatriakeyboard.elearningmu.util.SingletonRequestQueue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import customfonts.MyTextView;
-import okhttp3.HttpUrl;
+import static com.kesatriakeyboard.elearningmu.util.Config.CLIENT_ID;
+import static com.kesatriakeyboard.elearningmu.util.Config.SIGNIN_URL;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity {
 
-    private static final String AUTHORIZE_URL = "https://www.elearningmu.com/wplmsoauth/authorize";
-    private static final String TOKEN_URL = "https://www.elearningmu.com/wplmsoauth/token";
-    private static final String SIGNIN_URL = "https://www.elearningmu.com/wp-json/wplms/v1/user/signin";
-    private static final String CLIENT_ID = "lAD8KycBnrZQnXT0Schz8Fq";
-    private static final String CLIENT_SECRET = "3UDNjD51&M)(AQ@@gFb7#4T7lncwl^$0$PhYQDUR";
-    private static final String STATE = "1";
-    private static final String CODE = "code";
-    private static final String ERROR_CODE = "error_code";
-    private static final String REDIRECT_URI = "com.kesatriakeyboard.elearningmu:/oauth2redirect";
-    private static final String REDIRECT_URI_ROOT = "com.kesatriakeyboard.elearningmu";
-
-    String code;
-    String error;
-
-    private MyTextView btnLogin;
-    private Button btnUserId;
-    private Button btnProfile;
+    private EditText inputEmail, inputPassword;
+    private TextInputLayout inputLayoutEmail, inputLayoutPassword;
+    private Button btnLogin;
+    private ProgressBar progressBar;
+    private View parent_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        btnLogin = findViewById(R.id.signin1);
-        btnLogin.setOnClickListener(this);
+        parent_view = findViewById(android.R.id.content);
 
-        /*btnUserId = findViewById(R.id.btnUserId);
-        btnProfile = findViewById(R.id.btnProfile);
+        inputLayoutEmail = findViewById(R.id.input_layout_email);
+        inputLayoutPassword = findViewById(R.id.input_layout_password);
+        inputEmail = findViewById(R.id.input_email);
+        inputPassword = findViewById(R.id.input_password);
+        btnLogin = findViewById(R.id.btn_login);
+        progressBar = findViewById(R.id.progressBar);
+        inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
+        inputPassword.addTextChangedListener(new MyTextWatcher(inputPassword));
 
-        btnLogin.setOnClickListener(this);
-        btnUserId.setOnClickListener(this);
-        btnProfile.setOnClickListener(this);
-
-        Uri data = getIntent().getData();
-        if (data != null && !TextUtils.isEmpty(data.getScheme())) {
-            if (REDIRECT_URI_ROOT.equals(data.getScheme())) {
-                code  = data.getQueryParameter(CODE);
-                error = data.getQueryParameter(ERROR_CODE);
-                Log.e("OAUTH2", "onCreate: handle result of authorization with code :" + code);
-                if (!TextUtils.isEmpty(code)) {
-                    //getTokenFormUrl();
-                    Log.e("OAUTH2", "code: " + code);
-                    oauthRequestToken();
-                }
-                if(!TextUtils.isEmpty(error)) {
-                    //a problem occurs, the user reject our granting request or something like that
-                    Toast.makeText(this, "quit", Toast.LENGTH_LONG).show();
-                    Log.e("OAUTH2", "onCreate: handle result of authorization with error :" + error);
-                    //then die
-                    finish();
-                }
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                submitForm();
             }
-        }*/
+        });
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.signin1:
-                //oauthAuthorize();
-                loginApp();
-                break;
-            /*case R.id.btnUserId:
-                getUserIdRequest();
-                break;
-            case R.id.btnProfile:
-                PrefManager prefManager = PrefManager.getInstance(this);
-                if(!prefManager.isLoggedIn()) {
-                    Toast.makeText(this, "Please Login first!!", Toast.LENGTH_SHORT).show();
-                } else {
-                    getUserProfileRequest();
-                }
-                break;*/
+    private void submitForm() {
+
+        if (!validateEmail()) {
+            return;
+        }
+
+        if (!validatePassword()) {
+            return;
+        }
+
+        loginApp();
+    }
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean validateEmail() {
+        String email = inputEmail.getText().toString().trim();
+
+        if (email.isEmpty() || !isValidEmail(email)) {
+            inputLayoutEmail.setError(getString(R.string.err_msg_email));
+            requestFocus(inputEmail);
+            return false;
+        } else {
+            inputLayoutEmail.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validatePassword() {
+        if (inputPassword.getText().toString().trim().isEmpty()) {
+            inputLayoutPassword.setError(getString(R.string.err_msg_password));
+            requestFocus(inputPassword);
+            return false;
+        } else if (inputPassword.getText().length()<5){
+            inputLayoutPassword.setError(getString(R.string.inv_msg_password));
+            requestFocus(inputPassword);
+            return false;
+        }else {
+            inputLayoutPassword.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+
+        private View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            switch (view.getId()) {
+                case R.id.input_email:
+                    validateEmail();
+                    break;
+                case R.id.input_password:
+                    validatePassword();
+                    break;
+            }
         }
     }
 
@@ -118,6 +164,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Log.d("OAUTH2", "login app");
         RequestQueue queue = SingletonRequestQueue.getInstance(this).getRequestQueue();
         VolleyLog.DEBUG = true;
+
+        progressBar.setVisibility(View.VISIBLE);
+        btnLogin.setVisibility(View.GONE);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, SIGNIN_URL, new Response.Listener<String>() {
             @Override
@@ -131,10 +180,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Gson gson = builder.create();
                 SignInResponse signinResponse = gson.fromJson(response, SignInResponse.class);
 
+                progressBar.setVisibility(View.GONE);
+                btnLogin.setVisibility(View.VISIBLE);
+                hideKeyboard();
+
                 if (signinResponse.status) {
                     saveAuth(signinResponse);
+                    switchToHome();
                 } else {
-                    Toast.makeText(LoginActivity.this, signinResponse.message, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(LoginActivity.this, signinResponse.message, Toast.LENGTH_LONG).show();
+                    inputEmail.setText("");
+                    inputPassword.setText("");
+                    requestFocus(inputEmail);
+                    Snackbar.make(parent_view, signinResponse.message, Snackbar.LENGTH_LONG).show();
                 }
             }
         }, new Response.ErrorListener() {
@@ -150,11 +208,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
-                TextView tvUsername = findViewById(R.id.email);
-                TextView tvPassword = findViewById(R.id.password);
 
-                String username = tvUsername.getText().toString();
-                String password = tvPassword.getText().toString();
+                String username = inputEmail.getText().toString();
+                String password = inputPassword.getText().toString();
 
                 String str = "{\n" +
                         "  \"username\": \"" + username + "\",\n" +
@@ -183,173 +239,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         queue.add(stringRequest);
     }
 
-    private void oauthAuthorize() {
-        Log.d("OAUTH2", "login invoked");
-
-        HttpUrl authorizeUrl = HttpUrl.parse(AUTHORIZE_URL) //
-                .newBuilder() //
-                .addQueryParameter("client_id", CLIENT_ID)
-                .addQueryParameter("response_type", CODE)
-                .addQueryParameter("state", STATE)
-                .addQueryParameter("redirect_uri", REDIRECT_URI)
-                .build();
-
-        Log.d("OAUTH2", "auth url: " + authorizeUrl.url());
-
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(String.valueOf(authorizeUrl.url())));
-        startActivity(i);
-    }
-
-    private void oauthRequestToken() {
-        Log.d("OAUTH2", "oauthRequestToken invoked");
-        RequestQueue queue = SingletonRequestQueue.getInstance(this).getRequestQueue();
-        VolleyLog.DEBUG = true;
-
-        String url = TOKEN_URL;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                //response = response.substring(1,response.length()-1);
-
-                VolleyLog.wtf(response, "utf-8");
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
-                TokenResponse tokenResponse = gson.fromJson(response, TokenResponse.class);
-
-                //saveAuth(tokenResponse);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("OAUTH2", error.toString());
-                if (error instanceof NetworkError) {
-                    Toast.makeText(getApplicationContext(), "No network available", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("grant_type", "authorization_code");
-                params.put("code", code);
-                params.put("client_id", CLIENT_ID);
-                params.put("client_secret", CLIENT_SECRET);
-                params.put("redirect_uri", REDIRECT_URI);
-
-                return params;
-            }
-        };
-
-        int socketTimeout = 30000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        stringRequest.setRetryPolicy(policy);
-        queue.add(stringRequest);
-    }
-
     private void saveAuth(SignInResponse signInResponse) {
         Log.d("OAUTH2", "access_token: " + signInResponse.token.accessToken);
         PrefManager prefManager = PrefManager.getInstance(this);
         prefManager.setLoggedIn(true);
         prefManager.setAccessToken(signInResponse.token.accessToken);
-
-        Toast.makeText(this, "Welcome: " + signInResponse.user.name, Toast.LENGTH_LONG).show();
     }
 
-    private void getUserIdRequest() {
-        final Context ctx = this;
-        Log.d("OAUTH2", "getUserId invoked");
-        RequestQueue queue = SingletonRequestQueue.getInstance(this).getRequestQueue();
-        VolleyLog.DEBUG = true;
-
-        String url = Config.USER_URL;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                //response = response.substring(1,response.length()-1);
-
-                VolleyLog.wtf(response, "utf-8");
-                Log.d("OAUTH2", response);
-
-                int userId = Integer.parseInt(response.substring(1, response.length() - 1));
-
-                PrefManager pm = PrefManager.getInstance(ctx);
-                pm.setUserId(userId);
-
-                Toast.makeText(ctx, "User ID: " + userId, Toast.LENGTH_SHORT).show();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("OAUTH2", error.toString());
-                if (error instanceof NetworkError) {
-                    Toast.makeText(getApplicationContext(), "No network available", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                PrefManager pm = PrefManager.getInstance(ctx);
-
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization", pm.getAccessToken());
-
-                Log.d("OAUTH2", params.toString());
-                return params;
-            }
-        };
-
-        int socketTimeout = 30000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        stringRequest.setRetryPolicy(policy);
-        queue.add(stringRequest);
-    }
-
-    private void getUserProfileRequest() {
-        final Context ctx = this;
-        Log.d("OAUTH2", "getUserProfile invoked");
-        RequestQueue queue = SingletonRequestQueue.getInstance(this).getRequestQueue();
-        VolleyLog.DEBUG = true;
-
-        String url = Config.USER_PROFILE_URL;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                //response = response.substring(1,response.length()-1);
-
-                VolleyLog.wtf(response, "utf-8");
-                Log.d("OAUTH2", response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("OAUTH2", error.toString());
-                if (error instanceof NetworkError) {
-                    Toast.makeText(getApplicationContext(), "No network available", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                PrefManager pm = PrefManager.getInstance(ctx);
-
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization", pm.getAccessToken());
-
-                Log.d("OAUTH2", params.toString());
-                return params;
-            }
-        };
-
-        int socketTimeout = 30000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        stringRequest.setRetryPolicy(policy);
-        queue.add(stringRequest);
+    private void switchToHome() {
+        Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
+        startActivity(homeIntent);
     }
 }

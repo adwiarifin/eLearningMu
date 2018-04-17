@@ -96,4 +96,10 @@
     </string>
     <string name="action_settings">Settings</string>
     <string name="description">Description</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="err_msg_password">Enter the Password</string>
+    <string name="inv_msg_password">Minimum Length 5</string>
+    <string name="err_msg_email">Enter valid email address</string>
 </resources>
