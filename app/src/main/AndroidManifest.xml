@@ -11,28 +11,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" />
+        <activity android:name=".view.activity.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".view.activity.HomeActivity"
-            android:label="@string/title_activity_home" />
-        <activity
-            android:name=".view.activity.CourseDetailActivity"
-            android:label="@string/title_activity_course_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".view.activity.LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="com.kesatriakeyboard.elearningmu" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".view.activity.LoginActivity" />
+        <activity android:name=".view.activity.CourseDetailActivity" />
     </application>
 
 </manifest>

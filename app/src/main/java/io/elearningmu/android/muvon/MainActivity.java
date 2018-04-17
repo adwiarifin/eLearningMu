@@ -3,7 +3,6 @@ package io.elearningmu.android.muvon;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -35,11 +34,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.btnCourse:
                 //Snackbar.make(coordinatorLayout, "Button to Course Activity", Snackbar.LENGTH_LONG).show();
-                Intent homeIntent = new Intent(MainActivity.this, HomeActivity.class);
-                startActivity(homeIntent);
+                Intent courseIntent = new Intent(MainActivity.this, HomeActivity.class);
+                startActivity(courseIntent);
                 break;
             case R.id.btnTrack:
-                Snackbar.make(coordinatorLayout, "Button to Track Activity", Snackbar.LENGTH_LONG).show();
+//                Snackbar.make(coordinatorLayout, "Button to Track Activity", Snackbar.LENGTH_LONG).show();
+//                Intent homeIntent = new Intent(MainActivity.this, HomeActivity.class);
+//                startActivity(homeIntent);
                 break;
             case R.id.btnLogin:
                 Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);

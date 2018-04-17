@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.kesatriakeyboard.elearningmu.R;
+import io.elearningmu.android.muvon.R;
 
 import io.elearningmu.android.muvon.model.Course;
 import io.elearningmu.android.muvon.model.response.CourseResponse;
@@ -22,7 +22,7 @@ import io.elearningmu.android.muvon.util.HTMLString;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
+public class CourseListAdapter extends RecyclerView.Adapter<CourseListAdapter.CourseViewHolder> {
 
     private List<CourseResponse> listCourse;
     private Context mContext;
@@ -33,7 +33,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         void onClick(int courseId);
     }
 
-    public CourseAdapter(@NonNull Context context, CourseAdapterOnClickHandler clickHandler) {
+    public CourseListAdapter(@NonNull Context context, CourseAdapterOnClickHandler clickHandler) {
         this.mContext = context;
         this.mClickHandler = clickHandler;
         this.listCourse = new ArrayList<>();
@@ -89,7 +89,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         RatingBar ratingBar;
         CardView cardCourse;
 
-        public CourseViewHolder(View itemView) {
+        CourseViewHolder(View itemView) {
             super(itemView);
             cardCourse = itemView.findViewById(R.id.card_course);
             imgPhoto = itemView.findViewById(R.id.img_item_photo);

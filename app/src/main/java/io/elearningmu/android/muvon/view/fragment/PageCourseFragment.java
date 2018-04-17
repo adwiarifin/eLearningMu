@@ -1,15 +1,20 @@
 package io.elearningmu.android.muvon.view.fragment;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -23,57 +28,79 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.data.CourseAdapter;
+import io.elearningmu.android.muvon.data.CourseListAdapter;
 import io.elearningmu.android.muvon.model.CourseList;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 import io.elearningmu.android.muvon.view.activity.CourseDetailActivity;
 
-public class CourseFragment extends Fragment implements CourseAdapter.CourseAdapterOnClickHandler {
+import static io.elearningmu.android.muvon.util.Config.COURSE_URL;
+import static io.elearningmu.android.muvon.util.Config.FEATURED_COURSE_URL;
+import static io.elearningmu.android.muvon.util.Config.POPULAR_COURSE_URL;
 
-    private ProgressDialog progressDialog;
-    private CourseAdapter adapter;
+public class PageCourseFragment extends Fragment implements CourseListAdapter.CourseAdapterOnClickHandler {
 
-    public static CourseFragment newInstance() {
-        return new CourseFragment();
-    }
+    private View view;
+    private ProgressBar progressbar;
+    private RecyclerView recyclerView;
+    private CourseListAdapter mAdapter;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        String url = getArguments().getString("params");
-        getCourseRequest(url);
+    public static PageCourseFragment newInstance() {
+        return new PageCourseFragment();
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_course, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.page_fragment_course, container, false);
 
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Silahkan Tunggu...");
+        // activate fragment menu
+        setHasOptionsMenu(true);
 
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        adapter = new CourseAdapter(getActivity(), this);
-        RecyclerView rvCourse = rootView.findViewById(R.id.rv_course);
-        rvCourse.setLayoutManager(llm);
-        rvCourse.setAdapter(adapter);
+        mAdapter = new CourseListAdapter(getActivity(), this);
+        progressbar = view.findViewById(R.id.progressbar);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(mAdapter);
 
-        return rootView;
+        getCourseRequest(COURSE_URL);
+
+        return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment_course, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // nothing to do now
+        switch (item.getItemId()){
+//            case R.id.action_new_feed:
+//                Snackbar.make(view, item.getTitle()+" Clicked", Snackbar.LENGTH_SHORT).show();
+//                return true;
+            case R.id.navigation_home_latest:
+                getCourseRequest(COURSE_URL);
+                break;
+            case R.id.navigation_home_popular:
+                getCourseRequest(POPULAR_COURSE_URL);
+                break;
+            case R.id.navigation_home_featured:
+                getCourseRequest(FEATURED_COURSE_URL);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void getCourseRequest(String url) {
         RequestQueue queue = SingletonRequestQueue.getInstance(getContext()).getRequestQueue();
         VolleyLog.DEBUG = true;
-        progressDialog.show();
+        progressbar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
@@ -85,9 +112,10 @@ public class CourseFragment extends Fragment implements CourseAdapter.CourseAdap
                 Gson gson = builder.create();
                 CourseList list = gson.fromJson(response, CourseList.class);
 
-                adapter.setData(list.listCourses);
+                mAdapter.setData(list.listCourses);
                 //System.out.println(adapter.getItemCount());
-                progressDialog.dismiss();
+                progressbar.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -97,7 +125,8 @@ public class CourseFragment extends Fragment implements CourseAdapter.CourseAdap
                 } else {
                     Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
                 }
-                progressDialog.dismiss();
+                progressbar.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         });
 

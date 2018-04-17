@@ -1,7 +1,6 @@
 package io.elearningmu.android.muvon.view.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -30,13 +29,18 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.model.response.SignInResponse;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static io.elearningmu.android.muvon.util.Config.CLIENT_ID;
 import static io.elearningmu.android.muvon.util.Config.SIGNIN_URL;
@@ -109,11 +113,11 @@ public class LoginActivity extends AppCompatActivity {
             inputLayoutPassword.setError(getString(R.string.err_msg_password));
             requestFocus(inputPassword);
             return false;
-        } else if (inputPassword.getText().length()<5){
+        } else if (inputPassword.getText().length() < 5) {
             inputLayoutPassword.setError(getString(R.string.inv_msg_password));
             requestFocus(inputPassword);
             return false;
-        }else {
+        } else {
             inputLayoutPassword.setErrorEnabled(false);
         }
 
@@ -186,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (signinResponse.status) {
                     saveAuth(signinResponse);
-                    switchToHome();
+                    finish();
                 } else {
                     //Toast.makeText(LoginActivity.this, signinResponse.message, Toast.LENGTH_LONG).show();
                     inputEmail.setText("");
@@ -244,10 +248,22 @@ public class LoginActivity extends AppCompatActivity {
         PrefManager prefManager = PrefManager.getInstance(this);
         prefManager.setLoggedIn(true);
         prefManager.setAccessToken(signInResponse.token.accessToken);
+        prefManager.setUserId(signInResponse.user.id);
+        prefManager.setUserName(signInResponse.user.name);
+        prefManager.setUserEmail(signInResponse.user.email);
+        prefManager.setUserAvatar(signInResponse.user.avatar);
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date date = sdf.parse(signInResponse.token.expires);
+            prefManager.setExpires(date.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void switchToHome() {
-        Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
-        startActivity(homeIntent);
+//        Intent homeIntent = new Intent(LoginActivity.this, CourseActivity.class);
+//        startActivity(homeIntent);
     }
 }

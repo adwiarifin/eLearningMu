@@ -18,7 +18,11 @@ public class PrefManager {
     private static final String LOGGED_IN = "logged_in";
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String EXPIRES = "expires";
     private static final String USER_ID = "user_id";
+    private static final String USER_EMAIL = "user_email";
+    private static final String USER_NAME = "user_name";
+    private static final String USER_AVATAR = "user_avatar";
 
     public PrefManager(Context context) {
         Log.d("PrefManager", "PrefManager contructor is called");
@@ -52,9 +56,33 @@ public class PrefManager {
         editor.apply();
     }
 
+    public void setExpires(long expires) {
+        editor = pref.edit();
+        editor.putLong(EXPIRES, expires);
+        editor.apply();
+    }
+
     public void setUserId(int userId) {
         editor = pref.edit();
         editor.putInt(USER_ID, userId);
+        editor.apply();
+    }
+
+    public void setUserEmail(String userEmail) {
+        editor = pref.edit();
+        editor.putString(USER_EMAIL, userEmail);
+        editor.apply();
+    }
+
+    public void setUserName(String userName) {
+        editor = pref.edit();
+        editor.putString(USER_NAME, userName);
+        editor.apply();
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        editor = pref.edit();
+        editor.putString(USER_AVATAR, userAvatar);
         editor.apply();
     }
 
@@ -70,7 +98,23 @@ public class PrefManager {
         return pref.getString(REFRESH_TOKEN, "");
     }
 
+    public long getExpires() {
+        return pref.getLong(EXPIRES, 0);
+    }
+
     public int getUserId() {
         return pref.getInt(USER_ID, 0);
+    }
+
+    public String getUserEmail() {
+        return pref.getString(USER_EMAIL, "");
+    }
+
+    public String getUserName() {
+        return pref.getString(USER_NAME, "");
+    }
+
+    public String getUserAvatar() {
+        return pref.getString(USER_AVATAR, "");
     }
 }
