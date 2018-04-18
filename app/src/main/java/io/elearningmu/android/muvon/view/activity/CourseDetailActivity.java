@@ -3,13 +3,13 @@ package io.elearningmu.android.muvon.view.activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.view.View;
+import android.util.Log;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,12 +26,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.model.Course;
+import io.elearningmu.android.muvon.adapter.CurriculumListAdapter;
 import io.elearningmu.android.muvon.model.CourseDetail;
-import io.elearningmu.android.muvon.model.CourseList;
+import io.elearningmu.android.muvon.model.Instructor;
 import io.elearningmu.android.muvon.model.response.CourseDetailResponse;
-import io.elearningmu.android.muvon.model.response.CourseResponse;
 import io.elearningmu.android.muvon.util.Config;
 import io.elearningmu.android.muvon.util.HTMLString;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
@@ -40,8 +40,17 @@ public class CourseDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_COURSE_ID = "courseId";
 
+    private RecyclerView rvCurriculum;
+    private CurriculumListAdapter curriculumListAdapter;
+
     private ImageView backdrop;
     private TextView description;
+
+    private ImageView instructorPhoto;
+    private RatingBar instructorRating;
+    private TextView instructorName;
+    private TextView instructorStudentCount;
+    private TextView instructorCourseCount;
 
     private CollapsingToolbarLayout toolbarLayout;
     private ProgressDialog progressDialog;
@@ -69,6 +78,18 @@ public class CourseDetailActivity extends AppCompatActivity {
 
         backdrop = findViewById(R.id.backdrop);
         description = findViewById(R.id.course_description);
+
+        curriculumListAdapter = new CurriculumListAdapter(this);
+        rvCurriculum = findViewById(R.id.recycler_curriculums);
+        rvCurriculum.setLayoutManager(new LinearLayoutManager(this));
+        rvCurriculum.setAdapter(curriculumListAdapter);
+        rvCurriculum.setHasFixedSize(true);
+
+        instructorPhoto = findViewById(R.id.instructor_photo);
+        instructorRating = findViewById(R.id.instructor_rating);
+        instructorName = findViewById(R.id.instructor_name);
+        instructorStudentCount = findViewById(R.id.intructor_student_count);
+        instructorCourseCount = findViewById(R.id.instructor_course_count);
     }
 
     private void getCourseDetailRequest(int courseId) {
@@ -80,7 +101,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                response = response.substring(1,response.length()-1);
+                response = response.substring(1, response.length() - 1);
 
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
@@ -88,6 +109,8 @@ public class CourseDetailActivity extends AppCompatActivity {
                 CourseDetailResponse courseResponse = gson.fromJson(response, CourseDetailResponse.class);
 
                 setCourse(courseResponse.data);
+                setInstructor(courseResponse.data.instructors.get(0));
+                curriculumListAdapter.setCurriculumList(courseResponse.data.curriculum);
 
                 progressDialog.dismiss();
             }
@@ -127,5 +150,20 @@ public class CourseDetailActivity extends AppCompatActivity {
                 .load(detail.course.featuredImage)
                 .apply(options)
                 .into(backdrop);
+    }
+
+    public void setInstructor(Instructor instructor) {
+        instructorName.setText(instructor.name);
+        instructorStudentCount.setText(instructor.studentCount);
+        instructorCourseCount.setText(instructor.courseCount.toString());
+        instructorRating.setRating(Float.valueOf(instructor.averageRating));
+
+        RequestOptions options = new RequestOptions()
+                .fitCenter();
+
+        Glide.with(this)
+                .load(instructor.avatar)
+                .apply(options)
+                .into(instructorPhoto);
     }
 }

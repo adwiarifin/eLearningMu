@@ -20,4 +20,9 @@ public class HTMLString {
         result = result.replaceAll("</em>", "");
         return result;
     }
+
+    public static String parseHTML(String html) {
+        String result = Jsoup.parse(html).text();
+        return result;
+    }
 }

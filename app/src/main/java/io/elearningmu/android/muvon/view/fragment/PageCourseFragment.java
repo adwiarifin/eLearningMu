@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,7 +29,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.data.CourseListAdapter;
+import io.elearningmu.android.muvon.adapter.CourseListAdapter;
 import io.elearningmu.android.muvon.model.CourseList;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 import io.elearningmu.android.muvon.view.activity.CourseDetailActivity;

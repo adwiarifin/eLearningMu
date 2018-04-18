@@ -1,4 +1,4 @@
-package io.elearningmu.android.muvon.data;
+package io.elearningmu.android.muvon.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
