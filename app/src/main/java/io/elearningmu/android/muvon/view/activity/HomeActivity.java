@@ -26,8 +26,6 @@ public class HomeActivity extends AppCompatActivity {
     private ActionBar actionbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private FloatingActionButton fab;
-    private View parent_view;
 
     private PageFragmentAdapter adapter;
 
@@ -42,7 +40,6 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        parent_view = findViewById(android.R.id.content);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,7 +47,7 @@ public class HomeActivity extends AppCompatActivity {
         actionbar.setDisplayHomeAsUpEnabled(false);
 
         viewPager = findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
+        setupViewPager();
 
         tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -61,7 +58,7 @@ public class HomeActivity extends AppCompatActivity {
         Tools.systemBarLolipop(this);
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager() {
         // initialize fragment
         if (f_course == null) {
             f_course = new PageCourseFragment();

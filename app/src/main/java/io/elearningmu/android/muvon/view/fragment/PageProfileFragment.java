@@ -18,6 +18,7 @@ import com.bumptech.glide.request.RequestOptions;
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.view.activity.LoginActivity;
+import io.elearningmu.android.muvon.view.activity.ProfileActivity;
 
 public class PageProfileFragment extends Fragment {
 
@@ -59,8 +60,6 @@ public class PageProfileFragment extends Fragment {
                     .load(pm.getUserAvatar())
                     .apply(options)
                     .into(imagePhoto);
-
-
         } else {
             textName.setText("Guest");
             textHint.setText("Please login to view your profile");
@@ -70,7 +69,16 @@ public class PageProfileFragment extends Fragment {
     }
 
     public void actionClick(View view) {
+        PrefManager pm = PrefManager.getInstance(getActivity());
+
         switch (view.getId()) {
+            case R.id.lyt_view_profile:
+                if (pm.isLoggedIn()) {
+                    profile();
+                } else {
+                    login();
+                }
+                break;
             case R.id.lyt_setting:
                 Snackbar.make(view, "Setting Clicked", Snackbar.LENGTH_SHORT).show();
                 break;
@@ -78,7 +86,6 @@ public class PageProfileFragment extends Fragment {
                 Snackbar.make(view, "Help nad FAQ Clicked", Snackbar.LENGTH_SHORT).show();
                 break;
             case R.id.lyt_logout:
-                PrefManager pm = PrefManager.getInstance(getActivity());
                 if (pm.isLoggedIn()) {
                     logout();
                 } else {
@@ -86,6 +93,11 @@ public class PageProfileFragment extends Fragment {
                 }
                 break;
         }
+    }
+
+    private void profile() {
+        Intent i = new Intent(getActivity(), ProfileActivity.class);
+        startActivity(i);
     }
 
     private void login() {
