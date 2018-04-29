@@ -21,7 +21,7 @@
         <activity android:name=".view.activity.LoginActivity" />
         <activity android:name=".view.activity.CourseDetailActivity" />
         <activity
-            android:name=".view.activity.ProfileActivity"
+            android:name=".view.activity.UserActivity"
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme">
 

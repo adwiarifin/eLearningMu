@@ -20,6 +20,7 @@ public class Config {
     public static final String SIGNIN_URL = BASE_URL + "/user/signin";
     public static final String USER_URL = BASE_URL + "/user";
     public static final String USER_PROFILE_URL = BASE_URL + "/user/profile";
+    public static final String USER_EXTENDED_PROFILE_URL = BASE_URL + "/user/profile?tab=profile";
     public static final String USER_COURSE_STATUS_URL = BASE_URL + "/user/course_status";
     public static final String USER_REVIEW_URL = BASE_URL + "/user/getreview";
 }

@@ -1,9 +1,6 @@
 package io.elearningmu.android.muvon.view.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -15,10 +12,9 @@ import android.view.View;
 
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.adapter.PageFragmentAdapter;
-import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.Tools;
-import io.elearningmu.android.muvon.view.fragment.PageCourseFragment;
-import io.elearningmu.android.muvon.view.fragment.PageProfileFragment;
+import io.elearningmu.android.muvon.view.fragment.HomeCourseFragment;
+import io.elearningmu.android.muvon.view.fragment.HomeProfileFragment;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -29,8 +25,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private PageFragmentAdapter adapter;
 
-    private PageCourseFragment f_course;
-    private PageProfileFragment f_profile;
+    private HomeCourseFragment f_course;
+    private HomeProfileFragment f_profile;
     private static int[] imageResId = {
             R.drawable.tab_course,
             R.drawable.tab_profile
@@ -61,10 +57,10 @@ public class HomeActivity extends AppCompatActivity {
     private void setupViewPager() {
         // initialize fragment
         if (f_course == null) {
-            f_course = new PageCourseFragment();
+            f_course = new HomeCourseFragment();
         }
         if (f_profile == null) {
-            f_profile = new PageProfileFragment();
+            f_profile = new HomeProfileFragment();
         }
 
         // add fragment to adapter

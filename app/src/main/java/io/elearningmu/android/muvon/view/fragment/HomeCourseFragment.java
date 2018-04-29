@@ -30,7 +30,7 @@ import com.google.gson.GsonBuilder;
 
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.adapter.CourseListAdapter;
-import io.elearningmu.android.muvon.model.CourseList;
+import io.elearningmu.android.muvon.model.list.CourseList;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 import io.elearningmu.android.muvon.view.activity.CourseDetailActivity;
 
@@ -38,21 +38,21 @@ import static io.elearningmu.android.muvon.util.Config.COURSE_URL;
 import static io.elearningmu.android.muvon.util.Config.FEATURED_COURSE_URL;
 import static io.elearningmu.android.muvon.util.Config.POPULAR_COURSE_URL;
 
-public class PageCourseFragment extends Fragment implements CourseListAdapter.CourseAdapterOnClickHandler {
+public class HomeCourseFragment extends Fragment implements CourseListAdapter.CourseAdapterOnClickHandler {
 
     private View view;
     private ProgressBar progressbar;
     private RecyclerView recyclerView;
     private CourseListAdapter mAdapter;
 
-    public static PageCourseFragment newInstance() {
-        return new PageCourseFragment();
+    public static HomeCourseFragment newInstance() {
+        return new HomeCourseFragment();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.page_fragment_course, container, false);
+        view = inflater.inflate(R.layout.home_fragment_course, container, false);
 
         // activate fragment menu
         setHasOptionsMenu(true);
