@@ -62,13 +62,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        adapter = new PageFragmentAdapter(getSupportFragmentManager());
+        // initialize fragment
         if (f_course == null) {
             f_course = new PageCourseFragment();
         }
         if (f_profile == null) {
             f_profile = new PageProfileFragment();
         }
+
+        // add fragment to adapter
+        adapter = new PageFragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(f_course, getString(R.string.tab_course));
         adapter.addFragment(f_profile, getString(R.string.tab_profile));
         viewPager.setAdapter(adapter);
