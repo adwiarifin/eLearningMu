@@ -19,8 +19,9 @@ public class Config {
     // protected api
     public static final String SIGNIN_URL = BASE_URL + "/user/signin";
     public static final String USER_URL = BASE_URL + "/user";
-    public static final String USER_PROFILE_URL = BASE_URL + "/user/profile";
-    public static final String USER_EXTENDED_PROFILE_URL = BASE_URL + "/user/profile?tab=profile";
+    public static final String USER_X_PROFILE_URL = BASE_URL + "/user/profile";
+    public static final String USER_TAB_PROFILE_URL = BASE_URL + "/user/profile?tab=profile";
+    public static final String USER_TAB_COURSE_URL = BASE_URL + "/user/profile?tab=courses";
     public static final String USER_COURSE_STATUS_URL = BASE_URL + "/user/course_status";
     public static final String USER_REVIEW_URL = BASE_URL + "/user/getreview";
 }

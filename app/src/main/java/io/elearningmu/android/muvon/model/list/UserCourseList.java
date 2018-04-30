@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.elearningmu.android.muvon.model.response.ExtendedProfileResponse;
+import io.elearningmu.android.muvon.model.Course;
 
-public class ExtendedProfileList {
+public class UserCourseList {
 
     @SerializedName("list")
     @Expose
-    public List<ExtendedProfileResponse> listExtendedProfile;
+    public List<Course> listCourses = null;
 }

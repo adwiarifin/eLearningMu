@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +28,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.model.list.ExtendedProfileList;
+import io.elearningmu.android.muvon.model.list.UserProfileList;
 import io.elearningmu.android.muvon.model.response.ExtendedProfileResponse;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 
-import static io.elearningmu.android.muvon.util.Config.USER_EXTENDED_PROFILE_URL;
+import static io.elearningmu.android.muvon.util.Config.USER_TAB_PROFILE_URL;
 
 public class UserProfileFragment extends Fragment {
 
@@ -60,7 +59,6 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.user_fragment_profile, container, false);
-
         ctx = getActivity();
 
         name = view.findViewById(R.id.userProfileName);
@@ -75,7 +73,7 @@ public class UserProfileFragment extends Fragment {
         speciality1 = view.findViewById(R.id.userProfileSpeciality1);
         speciality2 = view.findViewById(R.id.userProfileSpeciality2);
 
-        getUserProfileRequest(USER_EXTENDED_PROFILE_URL);
+        getUserProfileRequest(USER_TAB_PROFILE_URL);
 
         return view;
     }
@@ -92,7 +90,7 @@ public class UserProfileFragment extends Fragment {
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
-                ExtendedProfileList list = gson.fromJson(response, ExtendedProfileList.class);
+                UserProfileList list = gson.fromJson(response, UserProfileList.class);
 
                 ExtendedProfileResponse base = list.listExtendedProfile.get(0);
                 ExtendedProfileResponse social = list.listExtendedProfile.get(1);

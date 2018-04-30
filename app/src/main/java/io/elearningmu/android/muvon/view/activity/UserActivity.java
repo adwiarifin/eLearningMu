@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.adapter.UserFragmentAdapter;
 import io.elearningmu.android.muvon.util.Tools;
+import io.elearningmu.android.muvon.view.fragment.UserCourseFragment;
 import io.elearningmu.android.muvon.view.fragment.UserProfileFragment;
 
 public class UserActivity extends AppCompatActivity {
@@ -21,6 +22,7 @@ public class UserActivity extends AppCompatActivity {
 
     private UserFragmentAdapter adapter;
     private UserProfileFragment f_profile;
+    private UserCourseFragment f_course;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,16 +58,17 @@ public class UserActivity extends AppCompatActivity {
 
     private void setupViewPager() {
         // initialize fragment
-//        if (f_course == null) {
-//            f_course = new PageCourseFragment();
-//        }
         if (f_profile == null) {
             f_profile = new UserProfileFragment();
+        }
+        if (f_course == null) {
+            f_course = new UserCourseFragment();
         }
 
         // add fragment to adapter
         adapter = new UserFragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(f_profile, "Profile");
+        adapter.addFragment(f_course, "My Courses");
         viewPager.setAdapter(adapter);
     }
 
