@@ -1,6 +1,7 @@
 package io.elearningmu.android.muvon.view.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +9,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.ClientError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.Request;
@@ -27,6 +32,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.adapter.CurriculumListAdapter;
 import io.elearningmu.android.muvon.model.CourseDetail;
@@ -34,11 +42,14 @@ import io.elearningmu.android.muvon.model.Instructor;
 import io.elearningmu.android.muvon.model.response.CourseDetailResponse;
 import io.elearningmu.android.muvon.util.Config;
 import io.elearningmu.android.muvon.util.HTMLString;
+import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 
 public class CourseDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_COURSE_ID = "courseId";
+
+    private Context ctx;
 
     private RecyclerView rvCurriculum;
     private CurriculumListAdapter curriculumListAdapter;
@@ -52,14 +63,17 @@ public class CourseDetailActivity extends AppCompatActivity {
     private TextView instructorStudentCount;
     private TextView instructorCourseCount;
 
+    private Button buttonTakeCourse;
+
     private CollapsingToolbarLayout toolbarLayout;
     private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ctx = this;
 
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(ctx);
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Silahkan Tunggu...");
 
@@ -79,9 +93,9 @@ public class CourseDetailActivity extends AppCompatActivity {
         backdrop = findViewById(R.id.backdrop);
         description = findViewById(R.id.course_description);
 
-        curriculumListAdapter = new CurriculumListAdapter(this);
+        curriculumListAdapter = new CurriculumListAdapter(ctx);
         rvCurriculum = findViewById(R.id.recycler_curriculums);
-        rvCurriculum.setLayoutManager(new LinearLayoutManager(this));
+        rvCurriculum.setLayoutManager(new LinearLayoutManager(ctx));
         rvCurriculum.setAdapter(curriculumListAdapter);
         rvCurriculum.setHasFixedSize(true);
 
@@ -90,10 +104,26 @@ public class CourseDetailActivity extends AppCompatActivity {
         instructorName = findViewById(R.id.instructor_name);
         instructorStudentCount = findViewById(R.id.intructor_student_count);
         instructorCourseCount = findViewById(R.id.instructor_course_count);
+
+        buttonTakeCourse = findViewById(R.id.button_take_course);
+        buttonTakeCourse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        PrefManager pm = PrefManager.getInstance(ctx);
+        if (pm.isLoggedIn()) {
+            buttonTakeCourse.setVisibility(View.VISIBLE);
+            int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
+            getCourseStatus(courseId);
+        } else {
+            buttonTakeCourse.setVisibility(View.GONE);
+        }
     }
 
     private void getCourseDetailRequest(int courseId) {
-        RequestQueue queue = SingletonRequestQueue.getInstance(this).getRequestQueue();
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
         VolleyLog.DEBUG = true;
         progressDialog.show();
 
@@ -132,6 +162,42 @@ public class CourseDetailActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    private void getCourseStatus(int courseId) {
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
+        VolleyLog.DEBUG = true;
+
+        String url = Config.USER_COURSE_STATUS_URL + "/" + courseId;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                buttonTakeCourse.setText("Go To Course");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                buttonTakeCourse.setText("Take Course");
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                PrefManager pm = PrefManager.getInstance(ctx);
+                params.put("Authorization", pm.getAccessToken());
+
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
+        queue.add(stringRequest);
+    }
+
+    private void postSubscribeCourse(int courseId){
+        
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -146,7 +212,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         RequestOptions options = new RequestOptions()
                 .fitCenter();
 
-        Glide.with(this)
+        Glide.with(ctx)
                 .load(detail.course.featuredImage)
                 .apply(options)
                 .into(backdrop);
@@ -161,7 +227,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         RequestOptions options = new RequestOptions()
                 .fitCenter();
 
-        Glide.with(this)
+        Glide.with(ctx)
                 .load(instructor.avatar)
                 .apply(options)
                 .into(instructorPhoto);

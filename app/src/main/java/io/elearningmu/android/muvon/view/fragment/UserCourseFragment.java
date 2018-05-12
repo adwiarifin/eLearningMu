@@ -113,6 +113,6 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
 
     @Override
     public void onClick(int courseId) {
-
+        Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
     }
 }
