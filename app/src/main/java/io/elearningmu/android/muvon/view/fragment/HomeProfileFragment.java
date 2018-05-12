@@ -18,9 +18,9 @@ import com.bumptech.glide.request.RequestOptions;
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.view.activity.LoginActivity;
-import io.elearningmu.android.muvon.view.activity.ProfileActivity;
+import io.elearningmu.android.muvon.view.activity.UserActivity;
 
-public class PageProfileFragment extends Fragment {
+public class HomeProfileFragment extends Fragment {
 
     View view;
 
@@ -32,7 +32,7 @@ public class PageProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.page_fragment_profile, container, false);
+        view = inflater.inflate(R.layout.home_fragment_profile, container, false);
 
         textName = view.findViewById(R.id.textName);
         textHint = view.findViewById(R.id.textHint);
@@ -96,7 +96,7 @@ public class PageProfileFragment extends Fragment {
     }
 
     private void profile() {
-        Intent i = new Intent(getActivity(), ProfileActivity.class);
+        Intent i = new Intent(getActivity(), UserActivity.class);
         startActivity(i);
     }
 

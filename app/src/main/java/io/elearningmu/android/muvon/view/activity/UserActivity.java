@@ -8,18 +8,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.adapter.PageFragmentAdapter;
+import io.elearningmu.android.muvon.adapter.UserFragmentAdapter;
 import io.elearningmu.android.muvon.util.Tools;
+import io.elearningmu.android.muvon.view.fragment.UserCourseFragment;
+import io.elearningmu.android.muvon.view.fragment.UserProfileFragment;
 
-public class ProfileActivity extends AppCompatActivity {
+public class UserActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ActionBar actionbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
-    private PageFragmentAdapter adapter;
-
+    private UserFragmentAdapter adapter;
+    private UserProfileFragment f_profile;
+    private UserCourseFragment f_course;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupTabClick();
-//        setupTabTitle();
+        setupTabTitle();
 
 
 //        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -47,18 +50,25 @@ public class ProfileActivity extends AppCompatActivity {
         Tools.systemBarLolipop(this);
     }
 
+    private void setupTabTitle() {
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            tabLayout.getTabAt(i).setText(adapter.getPageTitle(i));
+        }
+    }
+
     private void setupViewPager() {
         // initialize fragment
-//        if (f_course == null) {
-//            f_course = new PageCourseFragment();
-//        }
-//        if (f_profile == null) {
-//            f_profile = new PageProfileFragment();
-//        }
+        if (f_profile == null) {
+            f_profile = new UserProfileFragment();
+        }
+        if (f_course == null) {
+            f_course = new UserCourseFragment();
+        }
 
         // add fragment to adapter
-        adapter = new PageFragmentAdapter(getSupportFragmentManager());
-//        adapter.addFragment(f_course, getString(R.string.tab_course));
+        adapter = new UserFragmentAdapter(getSupportFragmentManager());
+        adapter.addFragment(f_profile, "Profile");
+        adapter.addFragment(f_course, "My Courses");
         viewPager.setAdapter(adapter);
     }
 
@@ -68,7 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
                 viewPager.setCurrentItem(position);
-                actionbar.setTitle(adapter.getTitle(position));
+                //actionbar.setTitle(adapter.getTitle(position));
             }
 
             @Override

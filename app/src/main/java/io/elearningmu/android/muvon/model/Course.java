@@ -67,4 +67,12 @@ public class Course implements Serializable {
     @SerializedName("menu_order")
     @Expose
     public Integer menuOrder;
+
+    @SerializedName("user_progress")
+    @Expose
+    public Double userProgress;
+
+    @SerializedName("user_status")
+    @Expose
+    public String userStatus;
 }

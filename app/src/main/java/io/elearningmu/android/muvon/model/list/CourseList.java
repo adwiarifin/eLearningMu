@@ -1,4 +1,4 @@
-package io.elearningmu.android.muvon.model;
+package io.elearningmu.android.muvon.model.list;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

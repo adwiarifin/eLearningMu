@@ -1,21 +1,20 @@
 package io.elearningmu.android.muvon.view.fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.Request;
@@ -28,71 +27,41 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.adapter.CourseListAdapter;
-import io.elearningmu.android.muvon.model.CourseList;
+import io.elearningmu.android.muvon.adapter.UserCourseListAdapter;
+import io.elearningmu.android.muvon.model.list.UserCourseList;
+import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
-import io.elearningmu.android.muvon.view.activity.CourseDetailActivity;
 
-import static io.elearningmu.android.muvon.util.Config.COURSE_URL;
-import static io.elearningmu.android.muvon.util.Config.FEATURED_COURSE_URL;
-import static io.elearningmu.android.muvon.util.Config.POPULAR_COURSE_URL;
+import static io.elearningmu.android.muvon.util.Config.USER_TAB_COURSE_URL;
 
-public class PageCourseFragment extends Fragment implements CourseListAdapter.CourseAdapterOnClickHandler {
+public class UserCourseFragment extends Fragment implements UserCourseListAdapter.CourseAdapterOnClickHandler {
 
+    private Context ctx;
     private View view;
     private ProgressBar progressbar;
     private RecyclerView recyclerView;
-    private CourseListAdapter mAdapter;
-
-    public static PageCourseFragment newInstance() {
-        return new PageCourseFragment();
-    }
+    private UserCourseListAdapter mAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.page_fragment_course, container, false);
+        view = inflater.inflate(R.layout.home_fragment_course, container, false);
+        ctx = getActivity();
 
-        // activate fragment menu
-        setHasOptionsMenu(true);
-
-        mAdapter = new CourseListAdapter(getActivity(), this);
+        mAdapter = new UserCourseListAdapter(ctx, this);
         progressbar = view.findViewById(R.id.progressbar);
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mAdapter);
 
-        getCourseRequest(COURSE_URL);
+        getCourseRequest(USER_TAB_COURSE_URL);
 
         return view;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fragment_course, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // nothing to do now
-        switch (item.getItemId()){
-//            case R.id.action_new_feed:
-//                Snackbar.make(view, item.getTitle()+" Clicked", Snackbar.LENGTH_SHORT).show();
-//                return true;
-            case R.id.navigation_home_latest:
-                getCourseRequest(COURSE_URL);
-                break;
-            case R.id.navigation_home_popular:
-                getCourseRequest(POPULAR_COURSE_URL);
-                break;
-            case R.id.navigation_home_featured:
-                getCourseRequest(FEATURED_COURSE_URL);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void getCourseRequest(String url) {
@@ -109,10 +78,10 @@ public class PageCourseFragment extends Fragment implements CourseListAdapter.Co
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
-                CourseList list = gson.fromJson(response, CourseList.class);
+                UserCourseList list = gson.fromJson(response, UserCourseList.class);
+                Log.e("COURSE", String.valueOf(list.listCourses.size()));
 
                 mAdapter.setData(list.listCourses);
-                //System.out.println(adapter.getItemCount());
                 progressbar.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
             }
@@ -120,14 +89,21 @@ public class PageCourseFragment extends Fragment implements CourseListAdapter.Co
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error instanceof NetworkError) {
-                    Toast.makeText(getActivity(), "No network available", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ctx, "No network available", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ctx, error.toString(), Toast.LENGTH_LONG).show();
                 }
-                progressbar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                PrefManager pm = PrefManager.getInstance(ctx);
+                params.put("Authorization", pm.getAccessToken());
+
+                return params;
+            }
+        };
 
         int socketTimeout = 30000;//30 seconds - change to what you want
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
@@ -137,8 +113,6 @@ public class PageCourseFragment extends Fragment implements CourseListAdapter.Co
 
     @Override
     public void onClick(int courseId) {
-        Intent courseDetailIntent = new Intent(getActivity(), CourseDetailActivity.class);
-        courseDetailIntent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, courseId);
-        startActivity(courseDetailIntent);
+        Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
     }
 }
