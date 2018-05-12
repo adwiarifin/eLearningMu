@@ -109,7 +109,13 @@ public class CourseDetailActivity extends AppCompatActivity {
         buttonTakeCourse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Button b = (Button) view;
+                int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
+                if (b.getText().equals("Go To Course")) {
+                    goToCourse(courseId);
+                } else if(b.getText().equals("Take Course")) {
+                    postSubscribeCourse(courseId);
+                }
             }
         });
         PrefManager pm = PrefManager.getInstance(ctx);
@@ -194,8 +200,53 @@ public class CourseDetailActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    private void postSubscribeCourse(int courseId){
-        
+    private void postSubscribeCourse(final int courseId){
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
+        VolleyLog.DEBUG = true;
+        progressDialog.show();
+
+        String url = Config.SUBSCRIBE_COURSE;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response.contains("Successfully")){
+                    Toast.makeText(ctx, "Congratulation, you may go to course", Toast.LENGTH_SHORT).show();
+                    buttonTakeCourse.setText("Go To Course");
+                }
+                progressDialog.dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NetworkError) {
+                    Toast.makeText(getApplicationContext(), "No network available", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+                }
+                progressDialog.dismiss();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                PrefManager pm = PrefManager.getInstance(ctx);
+                params.put("Authorization", pm.getAccessToken());
+                params.put("Content-Type", "application/json");
+
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String str = "{\"course_id\":"+courseId+"}";
+                return str.getBytes();
+            }
+        };
+
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
+        queue.add(stringRequest);
     }
 
     @Override
@@ -231,5 +282,9 @@ public class CourseDetailActivity extends AppCompatActivity {
                 .load(instructor.avatar)
                 .apply(options)
                 .into(instructorPhoto);
+    }
+
+    private void goToCourse(int courseId) {
+        Toast.makeText(ctx, "Go To Course: " + courseId, Toast.LENGTH_SHORT).show();
     }
 }

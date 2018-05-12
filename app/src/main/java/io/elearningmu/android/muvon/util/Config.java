@@ -24,4 +24,7 @@ public class Config {
     public static final String USER_TAB_COURSE_URL = BASE_URL + "/user/profile?tab=courses";
     public static final String USER_COURSE_STATUS_URL = BASE_URL + "/user/coursestatus";
     public static final String USER_REVIEW_URL = BASE_URL + "/user/getreview";
+
+    // post api
+    public static final String SUBSCRIBE_COURSE = BASE_URL + "/user/subscribe";
 }
