@@ -1,13 +1,12 @@
 package io.elearningmu.android.muvon.view.activity;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -27,67 +26,65 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.adapter.CourseIndexAdapter;
-import io.elearningmu.android.muvon.model.response.CourseIndexResponse;
+import io.elearningmu.android.muvon.model.response.CourseContentResponse;
 import io.elearningmu.android.muvon.util.Config;
+import io.elearningmu.android.muvon.util.HTMLString;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
 
-public class CourseIndex extends AppCompatActivity implements CourseIndexAdapter.CourseIndexAdapterOnClickHandler {
+public class CourseContent extends AppCompatActivity implements View.OnClickListener {
 
     public static final String EXTRA_COURSE_ID = "courseIndexId";
+    public static final String EXTRA_ITEM_ID = "courseItemId";
+    public static final String EXTRA_ITEM_TITLE = "courseItemTitle";
 
     private Context ctx;
-    private CourseIndexAdapter mAdapter;
     private ProgressBar progressbar;
-    private RecyclerView recyclerView;
-
-    private String title;
+    private Button buttonBack;
+    private TextView textContent;
+    private TextView textTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_course_content);
         ctx = this;
-        setContentView(R.layout.activity_course_index);
 
-        mAdapter = new CourseIndexAdapter(ctx, this);
+        String title = getIntent().getStringExtra(EXTRA_ITEM_TITLE);
+
         progressbar = findViewById(R.id.progressbar);
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(mAdapter);
-    }
+        buttonBack = findViewById(R.id.btnBack);
+        buttonBack.setOnClickListener(this);
+        textContent = findViewById(R.id.textContent);
+        textTitle = findViewById(R.id.textTitle);
+        textTitle.setText(HTMLString.parseHTML(title));
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (getIntent().hasExtra(EXTRA_COURSE_ID)) {
+        if (getIntent().hasExtra(EXTRA_COURSE_ID) && getIntent().hasExtra(EXTRA_ITEM_ID)) {
             int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
-            getCourseIndex(courseId);
+            int itemId = getIntent().getIntExtra(EXTRA_ITEM_ID, 0);
+            getCourseContent(courseId, itemId);
         } else {
             throw new IllegalArgumentException("Course Detail activity must receive an integer of ID");
         }
     }
 
-    private void getCourseIndex(int courseId) {
+    private void getCourseContent(int courseId, int itemId) {
         RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
         VolleyLog.DEBUG = true;
         progressbar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
 
-        String url = Config.USER_COURSE_STATUS_URL + "/" + courseId;
+        String url = Config.USER_COURSE_STATUS_URL + "/" + courseId + "/item/" + itemId;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
-                CourseIndexResponse cRes = gson.fromJson(response, CourseIndexResponse.class);
+                CourseContentResponse cRes = gson.fromJson(response, CourseContentResponse.class);
 
-                mAdapter.setData(cRes.courseitems);
+                textContent.setText(HTMLString.parseHTML(cRes.content));
+
                 progressbar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -98,7 +95,6 @@ public class CourseIndex extends AppCompatActivity implements CourseIndexAdapter
                     Toast.makeText(ctx, error.toString(), Toast.LENGTH_LONG).show();
                 }
                 progressbar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
             }
         }) {
             @Override
@@ -118,12 +114,11 @@ public class CourseIndex extends AppCompatActivity implements CourseIndexAdapter
     }
 
     @Override
-    public void onClick(int courseItemId, String courseItemTitle) {
-        int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
-        Intent courseContentIntent = new Intent(ctx, CourseContent.class);
-        courseContentIntent.putExtra(CourseContent.EXTRA_COURSE_ID, courseId);
-        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_ID, courseItemId);
-        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_TITLE, courseItemTitle);
-        startActivity(courseContentIntent);
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnBack:
+                finish();
+                break;
+        }
     }
 }
