@@ -1,6 +1,7 @@
 package io.elearningmu.android.muvon.view.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,6 +36,7 @@ import io.elearningmu.android.muvon.adapter.UserCourseListAdapter;
 import io.elearningmu.android.muvon.model.list.UserCourseList;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
+import io.elearningmu.android.muvon.view.activity.CourseIndex;
 
 import static io.elearningmu.android.muvon.util.Config.USER_TAB_COURSE_URL;
 
@@ -113,6 +115,9 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
 
     @Override
     public void onClick(int courseId) {
-        Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
+        Intent courseIndexIntent = new Intent(ctx, CourseIndex.class);
+        courseIndexIntent.putExtra(CourseIndex.EXTRA_COURSE_ID, courseId);
+        startActivity(courseIndexIntent);
     }
 }

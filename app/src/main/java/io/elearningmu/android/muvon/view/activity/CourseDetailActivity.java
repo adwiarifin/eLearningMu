@@ -2,6 +2,7 @@ package io.elearningmu.android.muvon.view.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -285,6 +286,9 @@ public class CourseDetailActivity extends AppCompatActivity {
     }
 
     private void goToCourse(int courseId) {
-        Toast.makeText(ctx, "Go To Course: " + courseId, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(ctx, "Go To Course: " + courseId, Toast.LENGTH_SHORT).show();
+        Intent courseIndexIntent = new Intent(ctx, CourseIndex.class);
+        courseIndexIntent.putExtra(CourseIndex.EXTRA_COURSE_ID, courseId);
+        startActivity(courseIndexIntent);
     }
 }
