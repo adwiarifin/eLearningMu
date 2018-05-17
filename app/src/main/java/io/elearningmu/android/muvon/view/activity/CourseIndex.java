@@ -1,17 +1,12 @@
-package io.elearningmu.android.muvon.view.fragment;
+package io.elearningmu.android.muvon.view.activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -32,58 +27,65 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.adapter.UserCourseListAdapter;
-import io.elearningmu.android.muvon.model.list.UserCourseList;
+import io.elearningmu.android.muvon.adapter.CourseIndexAdapter;
+import io.elearningmu.android.muvon.model.response.CourseIndexResponse;
+import io.elearningmu.android.muvon.util.Config;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
-import io.elearningmu.android.muvon.view.activity.CourseIndex;
 
-import static io.elearningmu.android.muvon.util.Config.USER_TAB_COURSE_URL;
+public class CourseIndex extends AppCompatActivity implements CourseIndexAdapter.CourseIndexAdapterOnClickHandler {
 
-public class UserCourseFragment extends Fragment implements UserCourseListAdapter.CourseAdapterOnClickHandler {
+    public static final String EXTRA_COURSE_ID = "courseIndexId";
 
     private Context ctx;
-    private View view;
+    private CourseIndexAdapter mAdapter;
     private ProgressBar progressbar;
     private RecyclerView recyclerView;
-    private UserCourseListAdapter mAdapter;
 
-    @Nullable
+    private String title;
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.home_fragment_course, container, false);
-        ctx = getActivity();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ctx = this;
+        setContentView(R.layout.activity_course_index);
 
-        mAdapter = new UserCourseListAdapter(ctx, this);
-        progressbar = view.findViewById(R.id.progressbar);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new CourseIndexAdapter(ctx, this);
+        progressbar = findViewById(R.id.progressbar);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mAdapter);
-
-        getCourseRequest(USER_TAB_COURSE_URL);
-
-        return view;
     }
 
-    private void getCourseRequest(String url) {
-        RequestQueue queue = SingletonRequestQueue.getInstance(getContext()).getRequestQueue();
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (getIntent().hasExtra(EXTRA_COURSE_ID)) {
+            int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
+            getCourseIndex(courseId);
+        } else {
+            throw new IllegalArgumentException("Course Detail activity must receive an integer of ID");
+        }
+    }
+
+    private void getCourseIndex(int courseId) {
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
         VolleyLog.DEBUG = true;
         progressbar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
 
+        String url = Config.USER_COURSE_STATUS_URL + "/" + courseId;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                response = "{\"list\": " + response + "}";
-
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
-                UserCourseList list = gson.fromJson(response, UserCourseList.class);
-                Log.e("COURSE", String.valueOf(list.listCourses.size()));
+                CourseIndexResponse cRes = gson.fromJson(response, CourseIndexResponse.class);
 
-                mAdapter.setData(list.listCourses);
+                mAdapter.setData(cRes.courseitems);
                 progressbar.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
             }
@@ -95,6 +97,8 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
                 } else {
                     Toast.makeText(ctx, error.toString(), Toast.LENGTH_LONG).show();
                 }
+                progressbar.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         }) {
             @Override
@@ -114,10 +118,12 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
     }
 
     @Override
-    public void onClick(int courseId) {
-        //Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
-        Intent courseIndexIntent = new Intent(ctx, CourseIndex.class);
-        courseIndexIntent.putExtra(CourseIndex.EXTRA_COURSE_ID, courseId);
-        startActivity(courseIndexIntent);
+    public void onClick(int courseItemId, String courseItemTitle) {
+        int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
+        Intent courseContentIntent = new Intent(ctx, CourseContent.class);
+        courseContentIntent.putExtra(CourseContent.EXTRA_COURSE_ID, courseId);
+        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_ID, courseItemId);
+        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_TITLE, courseItemTitle);
+        startActivity(courseContentIntent);
     }
 }

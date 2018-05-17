@@ -1,18 +1,12 @@
-package io.elearningmu.android.muvon.view.fragment;
+package io.elearningmu.android.muvon.view.activity;
 
 import android.content.Context;
-import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -32,60 +26,65 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.elearningmu.android.muvon.R;
-import io.elearningmu.android.muvon.adapter.UserCourseListAdapter;
-import io.elearningmu.android.muvon.model.list.UserCourseList;
+import io.elearningmu.android.muvon.model.response.CourseContentResponse;
+import io.elearningmu.android.muvon.util.Config;
+import io.elearningmu.android.muvon.util.HTMLString;
 import io.elearningmu.android.muvon.util.PrefManager;
 import io.elearningmu.android.muvon.util.SingletonRequestQueue;
-import io.elearningmu.android.muvon.view.activity.CourseIndex;
 
-import static io.elearningmu.android.muvon.util.Config.USER_TAB_COURSE_URL;
+public class CourseContent extends AppCompatActivity implements View.OnClickListener {
 
-public class UserCourseFragment extends Fragment implements UserCourseListAdapter.CourseAdapterOnClickHandler {
+    public static final String EXTRA_COURSE_ID = "courseIndexId";
+    public static final String EXTRA_ITEM_ID = "courseItemId";
+    public static final String EXTRA_ITEM_TITLE = "courseItemTitle";
 
     private Context ctx;
-    private View view;
     private ProgressBar progressbar;
-    private RecyclerView recyclerView;
-    private UserCourseListAdapter mAdapter;
+    private Button buttonBack;
+    private TextView textContent;
+    private TextView textTitle;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.home_fragment_course, container, false);
-        ctx = getActivity();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_course_content);
+        ctx = this;
 
-        mAdapter = new UserCourseListAdapter(ctx, this);
-        progressbar = view.findViewById(R.id.progressbar);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(mAdapter);
+        String title = getIntent().getStringExtra(EXTRA_ITEM_TITLE);
 
-        getCourseRequest(USER_TAB_COURSE_URL);
+        progressbar = findViewById(R.id.progressbar);
+        buttonBack = findViewById(R.id.btnBack);
+        buttonBack.setOnClickListener(this);
+        textContent = findViewById(R.id.textContent);
+        textTitle = findViewById(R.id.textTitle);
+        textTitle.setText(HTMLString.parseHTML(title));
 
-        return view;
+        if (getIntent().hasExtra(EXTRA_COURSE_ID) && getIntent().hasExtra(EXTRA_ITEM_ID)) {
+            int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
+            int itemId = getIntent().getIntExtra(EXTRA_ITEM_ID, 0);
+            getCourseContent(courseId, itemId);
+        } else {
+            throw new IllegalArgumentException("Course Detail activity must receive an integer of ID");
+        }
     }
 
-    private void getCourseRequest(String url) {
-        RequestQueue queue = SingletonRequestQueue.getInstance(getContext()).getRequestQueue();
+    private void getCourseContent(int courseId, int itemId) {
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
         VolleyLog.DEBUG = true;
         progressbar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
 
+        String url = Config.USER_COURSE_STATUS_URL + "/" + courseId + "/item/" + itemId;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                response = "{\"list\": " + response + "}";
-
                 VolleyLog.wtf(response, "utf-8");
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
-                UserCourseList list = gson.fromJson(response, UserCourseList.class);
-                Log.e("COURSE", String.valueOf(list.listCourses.size()));
+                CourseContentResponse cRes = gson.fromJson(response, CourseContentResponse.class);
 
-                mAdapter.setData(list.listCourses);
+                textContent.setText(HTMLString.parseHTML(cRes.content));
+
                 progressbar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -95,6 +94,7 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
                 } else {
                     Toast.makeText(ctx, error.toString(), Toast.LENGTH_LONG).show();
                 }
+                progressbar.setVisibility(View.GONE);
             }
         }) {
             @Override
@@ -114,10 +114,11 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
     }
 
     @Override
-    public void onClick(int courseId) {
-        //Toast.makeText(ctx, "Course ID: " + courseId, Toast.LENGTH_SHORT).show();
-        Intent courseIndexIntent = new Intent(ctx, CourseIndex.class);
-        courseIndexIntent.putExtra(CourseIndex.EXTRA_COURSE_ID, courseId);
-        startActivity(courseIndexIntent);
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnBack:
+                finish();
+                break;
+        }
     }
 }

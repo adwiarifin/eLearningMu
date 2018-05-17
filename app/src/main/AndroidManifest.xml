@@ -15,6 +15,7 @@
         <activity android:name=".view.activity.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -23,9 +24,9 @@
         <activity
             android:name=".view.activity.UserActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppTheme">
-
-        </activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".view.activity.CourseIndex" />
+        <activity android:name=".view.activity.CourseContent"></activity>
     </application>
 
 </manifest>
