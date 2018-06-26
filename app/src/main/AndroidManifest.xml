@@ -26,7 +26,8 @@
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme" />
         <activity android:name=".view.activity.CourseIndex" />
-        <activity android:name=".view.activity.CourseContent"></activity>
+        <activity android:name=".view.activity.CourseContent" />
+        <activity android:name=".view.activity.CourseQuiz"></activity>
     </application>
 
 </manifest>

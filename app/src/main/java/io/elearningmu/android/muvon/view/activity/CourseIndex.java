@@ -118,12 +118,20 @@ public class CourseIndex extends AppCompatActivity implements CourseIndexAdapter
     }
 
     @Override
-    public void onClick(int courseItemId, String courseItemTitle) {
+    public void onClick(int courseItemId, String courseItemType, String courseItemTitle) {
         int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
-        Intent courseContentIntent = new Intent(ctx, CourseContent.class);
-        courseContentIntent.putExtra(CourseContent.EXTRA_COURSE_ID, courseId);
-        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_ID, courseItemId);
-        courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_TITLE, courseItemTitle);
-        startActivity(courseContentIntent);
+        if (courseItemType.equals("unit")) {
+            Intent courseContentIntent = new Intent(ctx, CourseContent.class);
+            courseContentIntent.putExtra(CourseContent.EXTRA_COURSE_ID, courseId);
+            courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_ID, courseItemId);
+            courseContentIntent.putExtra(CourseContent.EXTRA_ITEM_TITLE, courseItemTitle);
+            startActivity(courseContentIntent);
+        } else if (courseItemType.equals("quiz")) {
+            Intent courseQuizIntent = new Intent(ctx, CourseQuiz.class);
+            courseQuizIntent.putExtra(CourseQuiz.EXTRA_COURSE_ID, courseId);
+            courseQuizIntent.putExtra(CourseQuiz.EXTRA_ITEM_ID, courseItemId);
+            courseQuizIntent.putExtra(CourseQuiz.EXTRA_ITEM_TITLE, courseItemTitle);
+            startActivity(courseQuizIntent);
+        }
     }
 }

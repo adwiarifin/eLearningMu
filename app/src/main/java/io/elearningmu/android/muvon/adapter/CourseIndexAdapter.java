@@ -80,7 +80,7 @@ public class CourseIndexAdapter extends RecyclerView.Adapter<CourseIndexAdapter.
     }
 
     public interface CourseIndexAdapterOnClickHandler {
-        void onClick(int courseItemId, String courseItemTitle);
+        void onClick(int courseItemId, String CourseItemType, String courseItemTitle);
     }
 
     class CourseIndexViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -99,11 +99,10 @@ public class CourseIndexAdapter extends RecyclerView.Adapter<CourseIndexAdapter.
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
             CourseItem courseItem = listCourseUnit.get(adapterPosition);
-            if (courseItem.type.equals("unit")) {
-                int id = Integer.parseInt(courseItem.id);
-                String title = courseItem.title;
-                mClickHandler.onClick(id, title);
-            }
+            int id = Integer.parseInt(courseItem.id);
+            String type = courseItem.type;
+            String title = courseItem.title;
+            mClickHandler.onClick(id, type, title);
         }
     }
 }
