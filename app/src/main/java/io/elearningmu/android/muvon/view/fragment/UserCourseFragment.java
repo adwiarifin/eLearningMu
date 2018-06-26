@@ -61,9 +61,14 @@ public class UserCourseFragment extends Fragment implements UserCourseListAdapte
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mAdapter);
 
-        getCourseRequest(USER_TAB_COURSE_URL);
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        getCourseRequest(USER_TAB_COURSE_URL);
     }
 
     private void getCourseRequest(String url) {
