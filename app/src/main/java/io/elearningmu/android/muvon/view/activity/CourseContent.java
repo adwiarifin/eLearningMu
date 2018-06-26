@@ -60,8 +60,6 @@ public class CourseContent extends AppCompatActivity implements View.OnClickList
         textTitle = findViewById(R.id.textTitle);
         textTitle.setText(HTMLString.parseHTML(title));
 
-        textContent.setMovementMethod(new ScrollingMovementMethod());
-
         if (getIntent().hasExtra(EXTRA_COURSE_ID) && getIntent().hasExtra(EXTRA_ITEM_ID)) {
             int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);
             int itemId = getIntent().getIntExtra(EXTRA_ITEM_ID, 0);
