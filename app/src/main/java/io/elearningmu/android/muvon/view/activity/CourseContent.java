@@ -1,8 +1,10 @@
 package io.elearningmu.android.muvon.view.activity;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
@@ -83,7 +85,11 @@ public class CourseContent extends AppCompatActivity implements View.OnClickList
                 Gson gson = builder.create();
                 CourseContentResponse cRes = gson.fromJson(response, CourseContentResponse.class);
 
-                textContent.setText(HTMLString.parseHTML(cRes.content));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    textContent.setText(Html.fromHtml(cRes.content, Html.FROM_HTML_MODE_COMPACT));
+                } else {
+                    textContent.setText(Html.fromHtml(cRes.content));
+                }
 
                 progressbar.setVisibility(View.GONE);
             }
