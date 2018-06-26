@@ -3,6 +3,7 @@ package io.elearningmu.android.muvon.view.activity;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -58,6 +59,8 @@ public class CourseContent extends AppCompatActivity implements View.OnClickList
         textContent = findViewById(R.id.textContent);
         textTitle = findViewById(R.id.textTitle);
         textTitle.setText(HTMLString.parseHTML(title));
+
+        textContent.setMovementMethod(new ScrollingMovementMethod());
 
         if (getIntent().hasExtra(EXTRA_COURSE_ID) && getIntent().hasExtra(EXTRA_ITEM_ID)) {
             int courseId = getIntent().getIntExtra(EXTRA_COURSE_ID, 0);

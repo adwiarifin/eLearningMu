@@ -15,21 +15,23 @@
             android:id="@+id/textTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_margin="@dimen/spacing_large"/>
+            android:layout_margin="@dimen/spacing_large"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_large" />
+            android:layout_margin="@dimen/spacing_large"
+            android:maxLines="20"
+            android:scrollbars="vertical" />
 
         <Button
             android:id="@+id/btnBack"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Back to Course Index"
-            style="@style/Widget.AppCompat.Button.Colored" />
+            android:text="Back to Course Index" />
 
     </LinearLayout>
 
