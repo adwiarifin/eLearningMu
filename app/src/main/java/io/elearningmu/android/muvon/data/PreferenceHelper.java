@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 
 public class PreferenceHelper {
 
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
-    Context context;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+    private Context context;
 
     // shared preference mode
     private static final int PRIVATE_MODE = 0;
