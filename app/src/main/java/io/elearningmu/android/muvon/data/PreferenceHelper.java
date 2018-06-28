@@ -7,7 +7,6 @@ public class PreferenceHelper {
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private Context context;
 
     // shared preference mode
     private static final int PRIVATE_MODE = 0;
@@ -23,7 +22,6 @@ public class PreferenceHelper {
     private static final String COURSE_ID = "CourseId";
 
     public PreferenceHelper(Context context) {
-        this.context = context;
         pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
     }
 
