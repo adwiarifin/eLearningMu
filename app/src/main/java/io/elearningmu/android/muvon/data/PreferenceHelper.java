@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 public class PreferenceHelper {
 
+    private static PreferenceHelper helper;
+
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
@@ -21,8 +23,13 @@ public class PreferenceHelper {
     private static final String QUIZ_ID = "QuizId";
     private static final String COURSE_ID = "CourseId";
 
-    public PreferenceHelper(Context context) {
-        pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+    public PreferenceHelper getInstance(Context context) {
+        if (helper == null) {
+            helper = new PreferenceHelper();
+            pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        }
+
+        return helper;
     }
 
     public void setCourseId(int courseId) {
