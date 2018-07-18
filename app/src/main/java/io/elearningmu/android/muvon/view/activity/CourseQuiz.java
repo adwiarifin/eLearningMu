@@ -5,12 +5,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.Request;
@@ -29,6 +31,7 @@ import java.util.Map;
 import io.elearningmu.android.muvon.R;
 import io.elearningmu.android.muvon.data.DatabaseHelper;
 import io.elearningmu.android.muvon.model.Question;
+import io.elearningmu.android.muvon.model.post.QuizSubmit;
 import io.elearningmu.android.muvon.model.response.CourseContentResponse;
 import io.elearningmu.android.muvon.util.Config;
 import io.elearningmu.android.muvon.util.HTMLString;
@@ -140,6 +143,70 @@ public class CourseQuiz extends AppCompatActivity implements View.OnClickListene
         queue.add(stringRequest);
     }
 
+    private void postQuiz() {
+        RequestQueue queue = SingletonRequestQueue.getInstance(ctx).getRequestQueue();
+        VolleyLog.DEBUG = true;
+        progressbar.setVisibility(View.VISIBLE);
+
+        String url = Config.QUIZ_SUBMIT;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                VolleyLog.wtf(response, "utf-8");
+                Log.e(getLocalClassName(), "response: " + response);
+
+                progressbar.setVisibility(View.GONE);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NetworkError) {
+                    Toast.makeText(ctx, "No network available", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(ctx, error.toString(), Toast.LENGTH_LONG).show();
+                }
+                progressbar.setVisibility(View.GONE);
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                PrefManager pm = PrefManager.getInstance(ctx);
+                params.put("Authorization", pm.getAccessToken());
+
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                DatabaseHelper db = new DatabaseHelper(ctx);
+                QuizSubmit qs = new QuizSubmit();
+                // TODO: Add Params
+                qs.courseId = 128;
+                qs.quizId = 220;
+                qs.results = db.getAllQuestions();
+
+                for (Question q : qs.results) {
+                    // TODO: Add Logic
+                    q.userMarks = q.marks;
+                    q.status = 2;
+                    q.marked = q.correct;
+                }
+
+                GsonBuilder builder = new GsonBuilder();
+                Gson gson = builder.create();
+                String json = gson.toJson(qs, QuizSubmit.class);
+
+                return json.getBytes();
+            }
+        };
+
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
+        queue.add(stringRequest);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -147,7 +214,8 @@ public class CourseQuiz extends AppCompatActivity implements View.OnClickListene
                 finish();
                 break;
             case R.id.btnStart:
-                // TODO: Something with quiz
+                // TODO: Change this later, just mockup
+                postQuiz();
                 break;
         }
     }
