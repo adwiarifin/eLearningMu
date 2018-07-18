@@ -25,7 +25,7 @@ public class Question {
 
     @SerializedName("options")
     @Expose
-    public List<String> options = null;
+    public Object options = null;
 
     @SerializedName("correct")
     @Expose

@@ -98,15 +98,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
-            String optionsString = cursor.getString(cursor.getColumnIndex("options"));
-            String[] optionsArray = optionsString.split(":");
-
             Question question = new Question();
             question.type = cursor.getString(1);
             question.hint = cursor.getString(2);
             question.explanation = cursor.getString(3);
             question.content = cursor.getString(4);
-            question.options = Arrays.asList(optionsArray);
+            question.options = cursor.getString(5);
             question.correct = cursor.getString(6);
             question.marks = cursor.getInt(7);
             question.userMarks = cursor.getInt(8);
@@ -135,15 +132,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                String optionsString = cursor.getString(cursor.getColumnIndex("options"));
-                String[] optionsArray = optionsString.split(":");
-
                 Question question = new Question();
                 question.type = cursor.getString(1);
                 question.hint = cursor.getString(2);
                 question.explanation = cursor.getString(3);
                 question.content = cursor.getString(4);
-                question.options = Arrays.asList(optionsArray);
+                question.options = cursor.getString(5);
                 question.correct = cursor.getString(6);
                 question.marks = cursor.getInt(7);
                 question.userMarks = cursor.getInt(8);
