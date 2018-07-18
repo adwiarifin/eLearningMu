@@ -99,6 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             Question question = new Question();
+            question.id = cursor.getInt(0);
             question.type = cursor.getString(1);
             question.hint = cursor.getString(2);
             question.explanation = cursor.getString(3);
@@ -133,6 +134,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Question question = new Question();
+                question.id = cursor.getInt(0);
                 question.type = cursor.getString(1);
                 question.hint = cursor.getString(2);
                 question.explanation = cursor.getString(3);

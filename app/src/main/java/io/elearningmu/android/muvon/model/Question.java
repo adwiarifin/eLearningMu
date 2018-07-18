@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Question {
 
+    public int id;
+
     @SerializedName("type")
     @Expose
     public String type;
